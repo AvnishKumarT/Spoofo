@@ -6,14 +6,31 @@ import { AiFillClockCircle } from "react-icons/ai";
 import { reducerCases } from "../utils/Constants";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDownload } from "@fortawesome/free-solid-svg-icons";
-import { getSearched, setSearched, getSongData, setTracks, setCurrentTrack, setCurrentIndex,getTracks, getCurrentTrack, getCurrentIndex} from "../utils/sharedVariables";
+import {
+  getSearched,
+  setSearched,
+  getSongData,
+  setTracks,
+  setCurrentTrack,
+  setCurrentIndex,
+  getTracks,
+  getCurrentTrack,
+  getCurrentIndex,
+} from "../utils/sharedVariables";
 import PlayerDevices from "./PlayerDevices";
 import { getHomeClicked } from "../utils/sharedVariables";
 import Home from "./Home";
+// import {
+//   NotificationContainer,
+//   NotificationManager,
+// } from "react-notifications";
+// import "react-notifications/lib/notifications.css";
 
 export default function Body({ headerBackground }) {
-  const [{ token, selectedPlaylist, selectedPlaylistId }, dispatch] = useStateProvider();
+  const [{ token, selectedPlaylist, selectedPlaylistId }, dispatch] =
+    useStateProvider();
   const [hoveredTrack, setHoveredTrack] = useState(null);
+  // const [showAlert, setShowAlert] = useState(false);
   // const location = useLocation();
   // const [tracks, setTracks] = useState([]);
   // const [currentTrack, setCurrentTrack] = useState({});
@@ -22,8 +39,7 @@ export default function Body({ headerBackground }) {
   const currentIndex = getCurrentIndex();
   const isHomeClicked = getHomeClicked();
   // const changeCurrentPlaylist = (selectedPlaylistId) => {
-    
-    
+
   //   dispatch({ type: reducerCases.SET_PLAYLIST_ID, selectedPlaylistId });
   // };
 
@@ -51,24 +67,6 @@ export default function Body({ headerBackground }) {
       fetchPlaylistTracks();
     }
   }, [selectedPlaylistId, token]);
-  
-  // async function searchAlbumTrack(albumId,songId){
-  //   try {
-  //     const res = await axios.get(
-  //       `https://api.spotify.com/v1/albums/${albumId}/tracks`,
-  //       {
-  //         headers: {
-  //           Authorization: "Bearer " + token,
-  //           "Content-Type": "application/json",
-  //         },
-  //       }
-  //     );
-  //     console.log("PLay Searched: ", res.data)
-  //   } catch (error) {
-  //     console.error("Error fetching playlist tracks:", error);
-  //   }
-  // };
-
 
   useEffect(() => {
     setCurrentTrack(tracks[currentIndex]?.track || tracks[currentIndex]);
@@ -117,8 +115,6 @@ export default function Body({ headerBackground }) {
     getInitialPlaylist();
   }, [token, dispatch, selectedPlaylistId]);
 
-  
-
   // const playTrack = async (
   //   id,
   //   name,
@@ -157,14 +153,48 @@ export default function Body({ headerBackground }) {
   //   }
   // };
 
-  // const msToMinutesAndSeconds = (ms) => {
-  //   var minutes = Math.floor(ms / 60000);
-  //   var seconds = ((ms % 60000) / 1000).toFixed(0);
-  //   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  // const createNotification = (type) => {
+  //   return () => {
+  //     switch (type) {
+  //       case "success":
+  //         NotificationManager.success("Download completed!", "Success");
+  //         break;
+  //       case "error":
+  //         NotificationManager.error(
+  //           "Error occurred during download",
+  //           "Download Error"
+  //         );
+  //         break;
+  //       default:
+  //         break;
+  //     }
+  //   };
   // };
 
   const handleDownloadClick = async (playlistName, songName) => {
     try {
+        // Simulate a successful download
+        var registrationSuccessful=true;
+        if(registrationSuccessful){
+              // Show downloading notification with playlist and song name
+    var notification = document.getElementById('registrationNotification');
+    notification.innerHTML = `Downloading ${playlistName} - ${songName}...`;
+    notification.style.display = 'block';
+
+    // Simulate a successful download
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Simulating download delay
+
+    // Update notification to show download completed
+    notification.innerHTML = "Download completed successfully";
+
+    // Hide the notification after 3 seconds
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 3000);
+        }
+        // alert("Downloading.. " + playlistName + " " + songName);
+        // createNotification("success")();
+      // }, 3000); // Show for 3 seconds
       // Send a POST request to your backend
       const response = await axios.get("http://localhost:3001/download", {
         params: {
@@ -172,20 +202,39 @@ export default function Body({ headerBackground }) {
           songName: songName,
         },
       });
-
+      
       // Handle the response if needed
       console.log("Download request sent successfully", response.data);
+  
+      // setShowAlert(true);
+     
     } catch (error) {
+      // Show success notification
+      // setShowAlert(true);
+      var registrationSuccessful = true;
+
+        if (registrationSuccessful) {
+          // Show the notification
+          var notification = document.getElementById('registrationNotification');
+          notification.innerHTML = "Download failed!! Try again...";
+          notification.style.display = 'block';
+        }
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000);
+  
       // Handle errors
       console.error("Error sending download request", error);
     }
   };
+  
 
   return (
     <Container headerBackground={headerBackground}>
-      {isHomeClicked && (
-        <Home />
-      )}
+      {isHomeClicked && <Home />}
+      <div class="notification" id="registrationNotification">
+      Registration Successful! You will now be redirected to the login page.
+    </div>
       {!isHomeClicked && itemSearched && (
         <div>
           {songData ? (
@@ -241,13 +290,17 @@ export default function Body({ headerBackground }) {
                           <img src={song.album.images[2].url} alt="track" />
                         </div>
                         <div className="info">
-                          <a className="name" href={song.external_urls.spotify}>{song.name}</a>
+                          <a className="name" href={song.external_urls.spotify}>
+                            {song.name}
+                          </a>
                           <span>{song.artists[0].name}</span>
                         </div>
                       </div>
                       <div className="col">
                         <span>{song.album.name}</span>
                       </div>
+                      {/* <NotificationContainer />
+                      {showAlert && <div className="alert">Downloading...</div>} */}
                       <div className="col">
                         {/* <span>{msToMinutesAndSeconds(song.duration_ms)}</span> */}
                         {isTrackHovered && (
@@ -256,9 +309,18 @@ export default function Body({ headerBackground }) {
                             style={{ paddingLeft: "10px", cursor: "pointer" }}
                             onClick={() => {
                               handleDownloadClick("Searched", song.name);
+                              
+                              // {showAlert && (
+                              //   <div className="alert">Downloading...</div>
+                              // )}
+                              //   <div className={`alert ${showAlert ? 'show' : ''}`}>
+                              //   Download completed!
+                              // </div>
+                              // onClick={this.createNotification('success')}>Success
                             }}
                           />
                         )}
+                       
                       </div>
                     </div>
                   );
@@ -325,7 +387,7 @@ export default function Body({ headerBackground }) {
                       onMouseEnter={() => setHoveredTrack(index)}
                       onMouseLeave={() => setHoveredTrack(null)}
                       onClick={() => {
-                        setCurrentIndex(index)
+                        setCurrentIndex(index);
                         // playTrack(
                         //   id,
                         //   name,
@@ -345,13 +407,17 @@ export default function Body({ headerBackground }) {
                           <img src={image} alt="track" />
                         </div>
                         <div className="info">
-                          <a className="name" href={external_link}>{name}</a>
+                          <a className="name" href={external_link}>
+                            {name}
+                          </a>
                           <span>{artists}</span>
                         </div>
                       </div>
                       <div className="col">
                         <span>{album}</span>
                       </div>
+                      {/* <NotificationContainer />
+                      {showAlert && <div className="alert">Downloading...</div>} */}
                       <div className="col">
                         {/* <span>{msToMinutesAndSeconds(duration)}</span> */}
                         {isTrackHovered && (
@@ -360,9 +426,17 @@ export default function Body({ headerBackground }) {
                             style={{ paddingLeft: "10px", cursor: "pointer" }}
                             onClick={() => {
                               handleDownloadClick(selectedPlaylist.name, name);
+                              // {showAlert && (
+                              //   <div className="alert">Downloading...</div>
+                              // )}
+                                // <div className={`alert ${showAlert ? 'show' : ''}`}>
+                                // Download completed!
+                              // </div>
                             }}
                           />
                         )}
+                        {/* Show the alert if showAlert state is true */}
+                        
                       </div>
                     </div>
                   );
@@ -377,10 +451,10 @@ export default function Body({ headerBackground }) {
 }
 
 const Container = styled.div`
-*{
-  text-decoration: none;
-  color: white;
-}
+  * {
+    text-decoration: none;
+    color: white;
+  }
   .playlist {
     margin: 0 2rem;
     display: flex;
@@ -451,4 +525,58 @@ const Container = styled.div`
       }
     }
   }
+  .alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50; /* Green background */
+    color: white; /* White text */
+    padding: 15px; /* Some padding */
+    border-radius: 10px; /* Rounded corners */
+    z-index: 9999; /* Ensure it appears above other elements */
+    display: none; /* Initially hidden */
+    border: 2px solid #2ecc71; /* Green border */
+    box-shadow: 0px 4px 10px rgba(46, 204, 113, 0.5); /* Shadow */
+  }
+  
+  .show {
+    display: block; /* Show the alert */
+  }
+  .notification {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    z-index: 1000;
+    /* visibility:hidden; */
+  }
+  
+  .text-danger {
+    display: none;
+    color: rgb(204, 25, 25);
+  }
+  .notification {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    z-index: 1000;
+    /* visibility:hidden; */
+  }
+  
+  .text-danger {
+    display: none;
+    color: rgb(204, 25, 25);
+  }
+  
 `;

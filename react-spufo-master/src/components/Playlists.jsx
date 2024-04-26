@@ -38,6 +38,24 @@ export default function Playlists() {
 
   const handleDownloadClick = async (playlistName,playlistId,token) => {
     try {
+      var registrationSuccessful=true;
+        if(registrationSuccessful){
+              // Show downloading notification with playlist and song name
+    var notification = document.getElementById('registrationNotification');
+    notification.innerHTML = `Downloading ${playlistName}...`;
+    notification.style.display = 'block';
+
+    // Simulate a successful download
+    await new Promise(resolve => setTimeout(resolve, 3000)); // Simulating download delay
+
+    // Update notification to show download completed
+    notification.innerHTML = "Download completed successfully";
+
+    // Hide the notification after 3 seconds
+    setTimeout(() => {
+      notification.style.display = 'none';
+    }, 3000);
+        }
       // Send a GET request to your backend
       const response = await axios.get("http://localhost:3001/download/wholePlaylist", {
         params: {
@@ -50,6 +68,17 @@ export default function Playlists() {
       // Handle the response if needed
       console.log("Download request sent successfully", response.data);
     } catch (error) {
+      var registrationSuccessful = true;
+
+      if (registrationSuccessful) {
+        // Show the notification
+        var notification = document.getElementById('registrationNotification');
+        notification.innerHTML = "Download failed!! Try again...";
+        notification.style.display = 'block';
+      }
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
       // Handle errors
       console.error("Error sending download request", error);
     }

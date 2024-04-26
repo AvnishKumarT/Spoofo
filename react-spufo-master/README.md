@@ -6,6 +6,10 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 
 In the project directory, you can run:
 
+### `npm install`
+Installs the necessary dependencies required for running the application.
+Make sure to run it in both react-spufo-master and the root directory
+
 ### `npm start`
 
 Runs the app in the development mode.\

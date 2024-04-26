@@ -80,6 +80,50 @@ header {
   border-radius: 2rem;
 }
 
+.dynamicText {
+  position: absolute;
+  bottom: 5%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.container {
+  position: relative;
+}
+
+.connectButton {
+  position: absolute;
+  top: 5%;
+  right: 5%;
+  background-color: #1db954;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  outline: none;
+}
+
+.connectButton:hover {
+  background-color: #15a745;
+}
+
+h2 {
+  color: #fff; /* White color */
+  font-family: "Arial", sans-serif; /* Specify desired font family */
+  font-size: 30px; /* Adjust font size */
+  font-weight: bold; /* Make the text bold */
+  text-align: center; /* Center-align the text */
+  font-family: "Roboto";
+  position: absolute;
+  bottom: 20%;
+  width:1300px;
+  left: 50%;
+  transform: translateX(-50%);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Add a subtle text shadow */
+}
+
+
 /*--------------------------------------PAGE 3-----------------------------------------------*/
 .page3{
 

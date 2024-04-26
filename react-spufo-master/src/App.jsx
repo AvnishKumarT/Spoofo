@@ -1,11 +1,13 @@
-import React, { useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import Login from "./components/Login";
 import Spotify from "./components/Spotify";
 import { reducerCases } from "./utils/Constants";
 import { useStateProvider } from "./utils/StateProvider";
+
 export default function App() {
   const [{ token }, dispatch] = useStateProvider();
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     const hash = window.location.hash;
     if (hash) {
@@ -15,7 +17,7 @@ export default function App() {
         setLoading(true);
         setTimeout(() => {
           setLoading(false);
-        }, 10000); // 10 seconds
+        }, 8000); // 10 seconds
       }
     }
     document.title = "Spoofo";
@@ -35,6 +37,22 @@ export default function App() {
 }
 
 function LoadingScreen() {
+  const [displayText, setDisplayText] = useState("");
+  const loadingText = "Your playlists are on their way! Just a moment...";
+
+  useEffect(() => {
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex <= loadingText.length) {
+        setDisplayText(loadingText.substring(0, currentIndex));
+        currentIndex++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 100); // Adjust the interval for desired speed
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, []);
+
   return (
     <div
       style={{
@@ -50,22 +68,17 @@ function LoadingScreen() {
         backgroundSize: "cover",
         backgroundColor: "black",
         color: "#333",
-        // fontSize: "3rem",
         boxShadow: "0 2rem 3rem rgba(73, 245, 133, 0.75)",
       }}
     >
-      <div style={{color: "#49f585", textAlign: "center", fontSize: "100px", fontWeight: "bold"}}>
+      <div style={{ color: "#49f585", textAlign: "center", fontSize: "100px", fontWeight: "bold" }}>
         ᯤ SPOOFO
       </div>
       <div>
-      <h2 style={{ color: "white", textAlign: "center", fontSize: "50px", fontWeight: "lighter"}}>
-      Initializing...
-      </h2>
+        <h2 style={{ color: "white", textAlign: "center", fontSize: "50px", fontWeight: "lighter" }}>
+          {displayText}
+        </h2>
       </div>
-      
-      {/* If you want a button */}
-      {/* <button style={{ marginBottom: "5rem" }}>Click Me</button> */}
     </div>
   );
 }
-

@@ -42,8 +42,8 @@ export default function Sidebar() {
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Sharp:opsz,wght,FILL,GRAD@24,400,0,0" />    
       </head>
       <div className="top__links">
-        <div className="logo">
-           <h2>ᯤ SPOOFO</h2>      
+        <div className="logo11">
+           <h3 className="sidebarSpoofo" style={{fontSize:"24px",paddingLeft:"10%",paddingTop:"5%"}}>ᯤ SPOOFO</h3>      
         </div>
         <ul>
           <li onClick={handleClick}>

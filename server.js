@@ -13,21 +13,40 @@ const fs = require("fs");
 var app = express();
 const puppeteer = require("puppeteer-extra");
 const StealthPlugin = require("puppeteer-extra-plugin-stealth");
+var https = require("https");
+const http = require('http');
+const os = require('os');
+const path = require("path");
+const { Provider } = require("react-redux");
 // Enable CORS for all routes
 app.use(cors());
+require('dotenv').config();
 
 // Your other server setup and routes go here
 // console.log("Welcome");
 app.get("/download", async function (req, res) {
   // console.log("Received POST request for download:", req.query);
   //Pro gamers api
-  const apiKey = "AIzaSyDBmT-r8hgSkQG5iAwus4sciPELF6JQ5SI"; // Replace with your actual YouTube API key
-
+  const apiKey = process.env.API_KEY; // Replace with your actual YouTube API key
+  console.log("YouTube API Key:", apiKey);
   const { playlistName, songName } = req.query;
   console.log("Records name: ", playlistName, songName);
   const query = songName;
-
+  // res.download("C:/Users/Avnish/Desktop/CPP_Practice/WEB_DEV/WADMini/SPOOFO_frontend/spufo-master-final/Downloads/My_Playlist_#2/Pehle_Bhi_Main.mp3");
   try {
+    // const filePath = '../react-spufo-master/public/photo.jpg';
+
+    // http.createServer((req, res) => {
+    //   fs.readFile(filePath, (err, data) => {
+    //     if (err) {
+    //       res.writeHead(404, {'Content-Type': 'text/html'});
+    //       return res.end("404 Not Found");
+    //     }  
+    //     res.writeHead(200, {'Content-Type': 'image/jpeg'});
+    //     res.write(data);
+    //     return res.end();
+    //   });
+    // }).listen(3000); 
     // Accessing YouTube API to find the URL of the song on YouTube
     const responseYouTube = await axios.get(
       "https://www.googleapis.com/youtube/v3/search",
@@ -56,39 +75,84 @@ app.get("/download", async function (req, res) {
       // Extract the part before the opening bracket and remove extra spaces
       const sanitizedName = fileName.split("(")[0].trim().replace(/\s+/g, ' ');
       // Replace invalid characters with underscores
-      return sanitizedName.replace(/[<>:"/\\|?*]/g, "_");
+      const sanitizedName2 = sanitizedName.replace(/[<>:"/\\|?*]/g, "_");
+      const finalFileName = sanitizedName2.replace(/\s+/g, '_');
+      return finalFileName;
     };
     
     // Replace 'output.mp3' with the desired name for the output MP3 file
-    const outputFileName = sanitizeFileName(songName) + ".mp3";
-    const outputFilePath = `Downloads/${playlistName}/${outputFileName}`;
+const outputFileName = sanitizeFileName(songName) + ".mp3";
+// const outputFilePath = path.join(os.homedir(), 'Downloads', sanitizeFileName(playlistName), outputFileName);
+const outputFilePath =  require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName) + '/' + outputFileName; 
+
+if(!fs.existsSync(require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName)+ '/')){
+  
+fs.mkdir(require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName)+ '/', (err) => {
+  if (err) {
+    console.error(err);
+  } else {
+    console.log('New folder created successfully!');
+}});
+
+}
+
+// Create directory if it doesn't exist
+// const directoryPath = path.join(os.homedir(), 'Downloads', sanitizeFileName(playlistName));
+// if (!fs.existsSync(directoryPath)) {
+//     fs.mkdirSync(directoryPath, { recursive: true });
+// }
+
     
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(`Downloads/${playlistName}`)) {
-      fs.mkdirSync(`Downloads/${playlistName}`, { recursive: true });
-    }
     
+      // Save the song blob to the output file path
+  // fs.writeFileSync(outputFilePath, await songBlob.arrayBuffer());
+
+  // const link = document.createElement("a");
+  // link.href = URL.createObjectURL(songBlob);
+  // link.download = outputFileName; // You can set the desired filename here
+  // link.click();
 
     // Download YouTube video
     const videoStream = ytdl(videoLink, {
       quality: "highestaudio",
     });
 
-    // Convert video to MP3
-    ffmpeg()
-      .input(videoStream)
-      .audioCodec("libmp3lame")
-      .toFormat("mp3")
-      .on("end", () => {
+// Convert video to MP3
+ffmpeg()
+    .input(videoStream)
+    .audioCodec("libmp3lame")
+    .toFormat("mp3")
+    .on("end", () => {
         console.log("Conversion finished!");
-        // res.json({ success: true, message: "Download completed successfully" });
-      })
-      .on("error", (err) => {
-        console.error("Error:", err);
+
+        // Watch the directory for changes
+        // const watcher = fs.watch(path.dirname(outputFilePath), (eventType, filename) => {
+        //     // Check if the event type is 'rename' (indicating a new file is created)
+        //     if (eventType === 'rename' && filename === path.basename(outputFilePath)) {
+        //         // If the new file is the one we are waiting for, initiate the download
+        //         watcher.close(); // Close the watcher to stop monitoring
+        //         const filePath = path.join(__dirname, `${outputFilePath}`);
+        //         res.download(filePath, (err) => {
+        //             if (err) {
+        //                 console.error("Error downloading file:", err);
+        //                 // Handle the error
+        //                 // res.status(500).json({ success: false, message: "Download failed" });
+        //             } else {
+        //                 console.log("File downloaded successfully!");
+        //             }
+        //         });
+        //     }
+        // });
+    })
+    .on("error", (err) => {
+        console.error("Error during conversion:", err);
         fs.unlinkSync(outputFilePath); // Delete the partially converted file
-        // res.status(500).json({ success: false, message: "Download failed" });
-      })
-      .save(outputFilePath);
+        // Handle the error
+        // res.status(500).json({ success: false, message: "Conversion failed" });
+    })
+    .save(outputFilePath);
+    
+    // URL of the image 
     // You can also listen for download progress
     // videoStream.on('progress', (chunkLength, downloaded, total) => {
     //   const percent = (downloaded / total) * 100;
@@ -106,7 +170,7 @@ app.get("/download", async function (req, res) {
 app.get("/download/wholePlaylist", async function (req, res) {
   // console.log("Received POST request for download:", req.query);
   //Pro gamers api
-  const apiKey = "AIzaSyDBmT-r8hgSkQG5iAwus4sciPELF6JQ5SI"; // Replace with your actual YouTube API key
+  const apiKey = process.env.API_KEY; // Replace with your actual YouTube API key
 
   const { playlistName, playlistId, access_token } = req.query;
   const playlist_id = playlistId;
@@ -175,8 +239,6 @@ app.get("/download/wholePlaylist", async function (req, res) {
         const youtubeVideoUrl = videoLink;
 
         // Replace 'output.mp3' with the desired name for the output MP3 file
-        // const outputFilePath = `Downloads/${playlistName}/${songName}.mp3`;
-
         const sanitizeFileName = (fileName) => {
           // Extract the part before the opening bracket and remove extra spaces
           const sanitizedName = fileName.split("(")[0].trim().replace(/\s+/g, ' ');
@@ -184,15 +246,23 @@ app.get("/download/wholePlaylist", async function (req, res) {
           return sanitizedName.replace(/[<>:"/\\|?*]/g, "_");
         };
         
-        // Replace 'output.mp3' with the desired name for the output MP3 file
-        const outputFileName = sanitizeFileName(songName) + ".mp3";
-        const outputFilePath = `Downloads/${playlistName}/${outputFileName}`;
-        
-        // Create directory if it doesn't exist
-        if (!fs.existsSync(`Downloads/${playlistName}`)) {
-          fs.mkdirSync(`Downloads/${playlistName}`, { recursive: true });
-        }
+    // Replace 'output.mp3' with the desired name for the output MP3 file
+    const outputFileName = sanitizeFileName(songName) + ".mp3";
+    // const outputFilePath = path.join(os.homedir(), 'Downloads', sanitizeFileName(playlistName), outputFileName);
+    const outputFilePath =  require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName) + '/' + outputFileName; 
+    
+    if(!fs.existsSync(require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName)+ '/')){
+      
+    fs.mkdir(require('os').homedir() + '/Downloads/' + sanitizeFileName(playlistName)+ '/', (err) => {
+      if (err) {
+        console.error(err);
+      } else {
+        console.log('New folder created successfully!');
+    }});
+    
+    }
 
+        
         // Download YouTube video
         const videoStream = ytdl(youtubeVideoUrl, {
           quality: "highestaudio",
@@ -205,6 +275,7 @@ app.get("/download/wholePlaylist", async function (req, res) {
           .toFormat("mp3")
           .on("end", () => {
             console.log("Conversion finished!");
+
           })
           .on("error", (err) => {
             console.error("Error:", err);
@@ -228,45 +299,6 @@ app.get("/download/wholePlaylist", async function (req, res) {
       "Error fetching Spotify data:",
       error.response ? error.response.data : error.message
     );
-  }
-});
-
-puppeteer.use(StealthPlugin());
-const {executablePath} = require('puppeteer');
-
-app.get("/addUser", async function (req, res) {
-  const { name, email, url } = req.query; // Retrieve parameters from req.query
-  console.log(name, email, url);
-  try {
-    puppeteer.launch({ headless: false, executablePath: executablePath() }).then(async browser =>{
-      console.log('Running tests..')
-      const page = await browser.newPage()
-    await page.goto(url)
-    await page.setViewport({ width: 1080, height: 1024 })
-
-    // Wait for the button with the specified class to load
-    // await page.waitForSelector("button[class='Button-sc-1dqy6lx-0.joTmzL']")
-
-    // Click on the button automatically
-    // await page.click("button[class='Button-sc-1dqy6lx-0.joTmzL']")
-
-    // await page.waitForSelector("input[name='name']")
-    await page.type("#login-username",'u8991632@gmail.com')
-    await page.type("#login-password",'Akt@_user_')
-    // await page.focus("input[name='email']")
-    // await page.keyboard.type(email)
-    await page.click("#login-button")
-    // await page.goto("https://developer.spotify.com/dashboard/9424d54fe5fb44b3b02c5b0790335fa3/users")
-    // await page.click("button[class='sc-23e7fae3-1']")
-    // await page.keyboard.press("Enter")
-    // await page.waitForTimeout(5000)
-    // await page.waitForNavigation({ waitUntil: "networkidle2" })
-    await page.screenshot({ path: 'testresult.png', fullPage: true })
-    // await browser.close()
-    console.log(`All done, check the screenshot. ✨`)
-    });
-  } catch (error) {
-    console.log(error);
   }
 });
 

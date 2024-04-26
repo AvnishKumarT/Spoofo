@@ -66,6 +66,24 @@ export default function Home() {
 
   const handleDownloadClick = async (playlistName, songName) => {
     try {
+      var registrationSuccessful=true;
+      if(registrationSuccessful){
+            // Show downloading notification with playlist and song name
+  var notification = document.getElementById('registrationNotification');
+  notification.innerHTML = `Downloading ${playlistName} - ${songName}...`;
+  notification.style.display = 'block';
+
+  // Simulate a successful download
+  await new Promise(resolve => setTimeout(resolve, 5000)); // Simulating download delay
+
+  // Update notification to show download completed
+  notification.innerHTML = "Download completed successfully";
+
+  // Hide the notification after 3 seconds
+  setTimeout(() => {
+    notification.style.display = 'none';
+  }, 3000);
+      }
       const response = await axios.get("http://localhost:3001/download", {
         params: {
           playlistName: playlistName,
@@ -74,6 +92,18 @@ export default function Home() {
       });
       console.log("Download request sent successfully", response.data);
     } catch (error) {
+      var registrationSuccessful = true;
+
+        if (registrationSuccessful) {
+          // Show the notification
+          var notification = document.getElementById('registrationNotification');
+          notification.innerHTML = "Download failed!! Try again...";
+          notification.style.display = 'block';
+        }
+        setTimeout(() => {
+          notification.style.display = 'none';
+        }, 3000);
+  
       console.error("Error sending download request", error);
     }
   };
@@ -157,6 +187,9 @@ export default function Home() {
     <Container>
       {!selectedPlaylist && (
         <>
+        <div class="notification" id="registrationNotification">
+      Registration Successful! You will now be redirected to the login page.
+    </div>
         <div className="grid">
           {homePlaylists.map(({ name, id, image, description }) => (
             
@@ -380,6 +413,60 @@ const Container = styled.div`
 grid-template-columns: repeat(4, 1fr);
 grid-gap: 10px;
   }
+  .alert {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4caf50; /* Green background */
+    color: white; /* White text */
+    padding: 15px; /* Some padding */
+    border-radius: 10px; /* Rounded corners */
+    z-index: 9999; /* Ensure it appears above other elements */
+    display: none; /* Initially hidden */
+    border: 2px solid #2ecc71; /* Green border */
+    box-shadow: 0px 4px 10px rgba(46, 204, 113, 0.5); /* Shadow */
+  }
+  
+  .show {
+    display: block; /* Show the alert */
+  }
+  .notification {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    z-index: 1000;
+    /* visibility:hidden; */
+  }
+  
+  .text-danger {
+    display: none;
+    color: rgb(204, 25, 25);
+  }
+  .notification {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 10px;
+    background-color: #28a745;
+    color: #fff;
+    border-radius: 5px;
+    z-index: 1000;
+    /* visibility:hidden; */
+  }
+  
+  .text-danger {
+    display: none;
+    color: rgb(204, 25, 25);
+  }
+
 `;
 
 const CardContainer = styled.div`
