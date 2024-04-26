@@ -6,10 +6,10 @@ SPOOFO is a Spotify song downloading application dedicated to enhancing your mus
 
 ### Personalized Features
 
-SPOOFO provides seamless integration with Spotify, allowing you to download your favorite songs hassle-free.
-Our intuitive user interface makes it easy to navigate through your playlists and select the songs you want to download.
-Enjoy high-quality downloads for free, enhancing your music listening experience.
-SPOOFO prioritizes your satisfaction, ensuring a smooth and enjoyable music journey.
+-> SPOOFO provides seamless integration with Spotify, allowing you to download your favorite songs hassle-free.
+-> Our intuitive user interface makes it easy to navigate through your playlists and select the songs you want to download.
+-> Enjoy high-quality downloads for free, enhancing your music listening experience.
+-> SPOOFO prioritizes your satisfaction, ensuring a smooth and enjoyable music journey.
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
